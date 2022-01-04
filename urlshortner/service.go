@@ -37,18 +37,18 @@ type urlData struct {
 
 var storeUrlData = NewUrlStore()
 
-func (us urlService) isUsed(checkUrl string) bool {
+func (us urlService) isUsed(checkUrl string) string {
 	for _, data := range storeUrlData.db {
 		if data.URL == checkUrl {
-			return true
+			return data.ShortURL
 		}
 	}
-	return false
+	return ""
 }
 
 func (us urlService) encodeUrl(ctx context.Context, urlInput UrlEncoder) (string, error) {
-	if us.isUsed(urlInput.Url) {
-		return "url already used", errors.New("url already used")
+	if usedUrl := us.isUsed(urlInput.Url); usedUrl != "" {
+		return usedUrl, nil
 	}
 	id := rand.Uint64()
 	encodeStr := base62.Encode(id)
